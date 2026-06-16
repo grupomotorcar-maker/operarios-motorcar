@@ -556,9 +556,15 @@
       <div class="module-arrow">→</div>
     </div>
 
-    <div class="module-card orange full" onclick="openCitas()">
+    <div class="module-card orange full" onclick="openModule('citas')">
       <div class="module-icon">📅</div>
       <div class="module-label">Solicitar Cita</div>
+      <div class="module-arrow">→</div>
+    </div>
+
+    <div class="module-card blue full" onclick="openVacaciones()">
+      <div class="module-icon">🏖️</div>
+      <div class="module-label">Vacaciones</div>
       <div class="module-arrow">→</div>
     </div>
 
@@ -570,45 +576,38 @@
   </div>
 </div>
 
-<!-- ========== MODAL CITAS ========== -->
-<div class="modal-overlay" id="citas-modal">
+<!-- ========== MODAL VACACIONES ========== -->
+<div class="modal-overlay" id="vacaciones-modal">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
     <div class="modal-header">
-      <div class="modal-title">📅 Solicitar Cita</div>
-      <div class="modal-close" onclick="closeCitas()">✕</div>
+      <div class="modal-title">🏖️ Solicitar Vacaciones</div>
+      <div class="modal-close" onclick="closeVacaciones()">✕</div>
     </div>
     <div class="modal-body">
-      <div id="citas-form">
+      <div id="vacaciones-form">
         <div class="form-group">
-          <label class="form-label">Motivo</label>
-          <select class="form-select" id="cita-motivo">
-            <option value="vacaciones">🏖️ Vacaciones / días libres</option>
-            <option value="baja">🏥 Baja / asunto médico</option>
-            <option value="nomina">💶 Consulta nómina</option>
-            <option value="horario">🕐 Cambio de horario</option>
-            <option value="personal">👤 Asunto personal</option>
-            <option value="otro">📌 Otro</option>
-          </select>
+          <label class="form-label">Fecha inicio</label>
+          <input type="date" class="form-textarea" id="vac-inicio" style="min-height:auto;padding:11px 13px">
         </div>
         <div class="form-group">
-          <label class="form-label">Fecha preferida</label>
-          <input type="date" class="form-textarea" id="cita-fecha" style="min-height:auto;padding:11px 13px">
+          <label class="form-label">Fecha fin</label>
+          <input type="date" class="form-textarea" id="vac-fin" style="min-height:auto;padding:11px 13px">
         </div>
         <div class="form-group">
-          <label class="form-label">Mensaje (opcional)</label>
-          <textarea class="form-textarea" id="cita-mensaje" placeholder="Añade más detalle si lo necesitas..."></textarea>
+          <label class="form-label">Comentario (opcional)</label>
+          <textarea class="form-textarea" id="vac-comentario" placeholder="Algún detalle adicional..."></textarea>
         </div>
-        <button class="submit-btn" style="background:#ff6d00" onclick="submitCita()">Enviar solicitud</button>
+        <button class="submit-btn" style="background:#1565c0" onclick="submitVacaciones()">Enviar solicitud</button>
       </div>
-      <div class="success-msg" id="citas-ok">
+      <div class="success-msg" id="vacaciones-ok">
         <div class="emoji">✅</div>
         <p>Solicitud enviada</p>
       </div>
 
       <div style="margin-top:20px">
         <div class="form-label" style="margin-bottom:10px">Mis solicitudes anteriores</div>
-        <div id="citas-historial"></div>
+        <div id="vacaciones-historial"></div>
       </div>
     </div>
   </div>
@@ -742,6 +741,7 @@
     tickets:   'https://grupomotorcar-maker.github.io/ticketsmotorcar/tickets-motorcar.html',
     pedidos:   'https://script.google.com/a/macros/grupomotorcar.com/s/AKfycbxDk85j1wxV3OuWDLwXjifexe68sooHi_2GQH3BUDAFnynVwgvTkiIDYGNpOXrJ5muy/exec',
     recambios: 'https://grupomotorcar-maker.github.io/motorcar-app/',
+    citas:     'https://citasmotorcarjm.netlify.app',
   };
 
   // ===== ESTADO =====
@@ -890,49 +890,49 @@
     logAccion(key, 'abrir', base);
   }
 
-  // ===== MODAL CITAS =====
-  const citaLabels = { vacaciones:'🏖️ Vacaciones', baja:'🏥 Baja', nomina:'💶 Nómina', horario:'🕐 Horario', personal:'👤 Personal', otro:'📌 Otro' };
-
-  function openCitas() {
-    document.getElementById('citas-modal').classList.add('open');
-    renderCitasHistorial();
-    logAccion('citas', 'abrir', '');
+  // ===== MODAL VACACIONES =====
+  function openVacaciones() {
+    document.getElementById('vacaciones-modal').classList.add('open');
+    renderVacacionesHistorial();
+    logAccion('vacaciones', 'abrir', '');
   }
-  function closeCitas() {
-    document.getElementById('citas-modal').classList.remove('open');
+  function closeVacaciones() {
+    document.getElementById('vacaciones-modal').classList.remove('open');
   }
-  document.getElementById('citas-modal').addEventListener('click', function(e) {
-    if (e.target === this) closeCitas();
+  document.getElementById('vacaciones-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeVacaciones();
   });
 
-  function submitCita() {
-    const motivo  = document.getElementById('cita-motivo').value;
-    const fecha   = document.getElementById('cita-fecha').value;
-    const mensaje = document.getElementById('cita-mensaje').value.trim();
-    const arr = JSON.parse(localStorage.getItem('mc_citas') || '[]');
-    arr.unshift({ operario:currentOperario, taller:currentTaller, fecha:new Date().toISOString(), citaFecha:fecha, motivo, mensaje });
-    localStorage.setItem('mc_citas', JSON.stringify(arr));
-    logAccion('citas', 'solicitud enviada', `${motivo} · ${fecha}`);
-    document.getElementById('citas-form').style.display = 'none';
-    document.getElementById('citas-ok').style.display = 'block';
+  function submitVacaciones() {
+    const inicio     = document.getElementById('vac-inicio').value;
+    const fin        = document.getElementById('vac-fin').value;
+    const comentario = document.getElementById('vac-comentario').value.trim();
+    if (!inicio || !fin) { showToast('⚠️ Indica las fechas'); return; }
+    if (fin < inicio)    { showToast('⚠️ La fecha fin debe ser posterior'); return; }
+    const arr = JSON.parse(localStorage.getItem('mc_vacaciones') || '[]');
+    arr.unshift({ operario:currentOperario, taller:currentTaller, fecha:new Date().toISOString(), inicio, fin, comentario });
+    localStorage.setItem('mc_vacaciones', JSON.stringify(arr));
+    logAccion('vacaciones', 'solicitud enviada', `${inicio} → ${fin}`);
+    document.getElementById('vacaciones-form').style.display = 'none';
+    document.getElementById('vacaciones-ok').style.display = 'block';
     setTimeout(() => {
-      document.getElementById('citas-form').style.display = 'block';
-      document.getElementById('citas-ok').style.display = 'none';
-      document.getElementById('cita-fecha').value = '';
-      document.getElementById('cita-mensaje').value = '';
-      renderCitasHistorial();
+      document.getElementById('vacaciones-form').style.display = 'block';
+      document.getElementById('vacaciones-ok').style.display = 'none';
+      document.getElementById('vac-inicio').value = '';
+      document.getElementById('vac-fin').value = '';
+      document.getElementById('vac-comentario').value = '';
+      renderVacacionesHistorial();
     }, 2000);
   }
 
-  function renderCitasHistorial() {
-    const el = document.getElementById('citas-historial');
+  function renderVacacionesHistorial() {
+    const el = document.getElementById('vacaciones-historial');
     if (!el) return;
-    const arr = JSON.parse(localStorage.getItem('mc_citas') || '[]').filter(c => c.operario === currentOperario);
+    const arr = JSON.parse(localStorage.getItem('mc_vacaciones') || '[]').filter(v => v.operario === currentOperario);
     if (!arr.length) { el.innerHTML = '<div class="empty-state" style="padding:14px 0">Sin solicitudes anteriores</div>'; return; }
-    el.innerHTML = arr.slice(0,5).map(c => {
-      const f = new Date(c.fecha).toLocaleDateString('es-ES', { day:'numeric', month:'short' });
-      const cf = c.citaFecha ? ` · Para: ${c.citaFecha}` : '';
-      return `<div class="sugerencia-item"><div class="sugerencia-meta">${citaLabels[c.motivo]||c.motivo} · ${f}${cf}</div>${c.mensaje ? `<div class="sugerencia-text">${c.mensaje}</div>` : ''}</div>`;
+    el.innerHTML = arr.slice(0,5).map(v => {
+      const f = new Date(v.fecha).toLocaleDateString('es-ES', { day:'numeric', month:'short' });
+      return `<div class="sugerencia-item"><div class="sugerencia-meta">📅 ${v.inicio} → ${v.fin} · enviado ${f}</div>${v.comentario ? `<div class="sugerencia-text">${v.comentario}</div>` : ''}</div>`;
     }).join('');
   }
 
