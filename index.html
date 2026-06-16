@@ -683,6 +683,24 @@
 <div class="toast" id="toast"></div>
 
 <script>
+  // ===== REGISTRO (pon aquí la URL del GAS tras desplegarlo) =====
+  const LOG_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwAOEM6IH04cAAz5ewnQsaJh3fkHRxsmuYAG7Cs4jfF32rbNuLdUVaAwz5Grf9u_uOS/exec';  // ← pega aquí la URL de "registro-motorcar.gs" desplegado
+
+  function logAccion(modulo, accion, detalle = '') {
+    if (!LOG_ENDPOINT) return;
+    const payload = {
+      taller:   currentTaller   || '',
+      operario: currentOperario || '',
+      modulo, accion, detalle
+    };
+    fetch(LOG_ENDPOINT, {
+      method: 'POST',
+      mode:   'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload)
+    }).catch(() => {});
+  }
+
   // ===== CONFIGURACIÓN =====
   // Para cambiar PINs: modifica el campo "pin" de cada operario
   const TALLERES = {
@@ -826,6 +844,7 @@
         taller: currentTaller,
         operario: currentOperario
       }));
+      logAccion('login', 'acceso', TALLERES[currentTaller].nombre);
       document.getElementById('pin-screen').style.display = 'none';
       enterApp();
     } else {
@@ -848,6 +867,7 @@
   }
 
   function logout() {
+    logAccion('login', 'salir', '');
     sessionStorage.removeItem('mc_session');
     currentTaller = null;
     currentOperario = null;
@@ -859,8 +879,15 @@
   }
 
   function openModule(key) {
-    const url = APP_URLS[key];
-    if (url) window.open(url, '_blank');
+    const base = APP_URLS[key];
+    if (!base) return;
+    const params = new URLSearchParams({
+      operario: currentOperario || '',
+      taller:   currentTaller   || ''
+    });
+    const sep = base.includes('?') ? '&' : '?';
+    window.open(base + sep + params.toString(), '_blank');
+    logAccion(key, 'abrir', base);
   }
 
   // ===== MODAL CITAS =====
@@ -869,6 +896,7 @@
   function openCitas() {
     document.getElementById('citas-modal').classList.add('open');
     renderCitasHistorial();
+    logAccion('citas', 'abrir', '');
   }
   function closeCitas() {
     document.getElementById('citas-modal').classList.remove('open');
@@ -884,6 +912,7 @@
     const arr = JSON.parse(localStorage.getItem('mc_citas') || '[]');
     arr.unshift({ operario:currentOperario, taller:currentTaller, fecha:new Date().toISOString(), citaFecha:fecha, motivo, mensaje });
     localStorage.setItem('mc_citas', JSON.stringify(arr));
+    logAccion('citas', 'solicitud enviada', `${motivo} · ${fecha}`);
     document.getElementById('citas-form').style.display = 'none';
     document.getElementById('citas-ok').style.display = 'block';
     setTimeout(() => {
@@ -911,6 +940,7 @@
   function openBuzon() {
     document.getElementById('buzon-modal').classList.add('open');
     renderHistorial();
+    logAccion('buzon', 'abrir', '');
   }
 
   function closeBuzon() {
@@ -943,6 +973,7 @@
     const arr = JSON.parse(localStorage.getItem('mc_encuestas') || '[]');
     arr.push({ tipo:'encuesta', operario:currentOperario, taller:currentTaller, fecha:new Date().toISOString(), data:{...ratings} });
     localStorage.setItem('mc_encuestas', JSON.stringify(arr));
+    logAccion('buzon', 'encuesta enviada', Object.entries(ratings).map(([k,v])=>`${k}:${v}★`).join(' · '));
     document.getElementById('encuesta-form').style.display = 'none';
     document.getElementById('encuesta-ok').style.display = 'block';
     ratings = {};
@@ -961,6 +992,7 @@
     const arr = JSON.parse(localStorage.getItem('mc_sugerencias') || '[]');
     arr.unshift({ operario:currentOperario, taller:currentTaller, fecha:new Date().toISOString(), categoria:cat, texto });
     localStorage.setItem('mc_sugerencias', JSON.stringify(arr));
+    logAccion('buzon', 'sugerencia enviada', `${cat}: ${texto.substring(0,80)}`);
     document.getElementById('buzon-texto').value = '';
     showToast('📬 Sugerencia enviada');
     switchTab('historial');
