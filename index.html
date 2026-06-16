@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Motorcar · Operarios</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    :root {
+      --bg: #0d0d0d;
+      --surface: #1a1a1a;
+      --surface2: #222222;
+      --border: #2a2a2a;
+      --red: #e53935;
+      --red-dark: #b71c1c;
+      --red-glow: rgba(229,57,53,0.18);
+      --orange: #ff6d00;
+      --orange-glow: rgba(255,109,0,0.18);
+      --blue: #1565c0;
+      --blue-glow: rgba(21,101,192,0.18);
+      --green: #2e7d32;
+      --green-glow: rgba(46,125,50,0.18);
+      --purple: #6a1b9a;
+      --purple-glow: rgba(106,27,154,0.18);
+      --text: #f0f0f0;
+      --text-muted: #888;
+      --radius: 16px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ===== LOGIN ===== */
+    #login-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .login-logo-icon {
+      width: 64px; height: 64px;
+      background: var(--red);
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; font-weight: 900; color: #fff;
+      margin-bottom: 12px;
+    }
+
+    .login-title {
+      font-size: 24px; font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .login-subtitle {
+      font-size: 13px; color: var(--text-muted);
+      margin-bottom: 32px;
+    }
+
+    .login-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      width: 100%; max-width: 340px;
+    }
+
+    /* Talleres */
+    .taller-btn {
+      background: var(--surface2);
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 18px;
+      display: flex; align-items: center; gap: 14px;
+      cursor: pointer;
+      transition: all 0.18s;
+      margin-bottom: 10px;
+    }
+    .taller-btn:last-child { margin-bottom: 0; }
+    .taller-btn:active { transform: scale(0.98); }
+
+    .taller-icon {
+      width: 46px; height: 46px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; font-weight: 900; color: #fff;
+      flex-shrink: 0;
+    }
+
+    .taller-name { font-size: 15px; font-weight: 700; }
+    .taller-sub  { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+    /* Operarios — lista compacta */
+    .back-btn {
+      font-size: 12px; color: var(--text-muted);
+      cursor: pointer; margin-bottom: 14px; display: inline-block;
+    }
+
+    .op-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+    }
+
+    .op-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 6px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex; flex-direction: column; align-items: center; gap: 5px;
+    }
+    .op-btn:active { transform: scale(0.95); }
+
+    .op-av {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700; color: #fff;
+    }
+
+    .op-name {
+      font-size: 10px; font-weight: 600; color: var(--text);
+      line-height: 1.2;
+    }
+
+    /* PIN pad */
+    #pin-screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .pin-title  { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+    .pin-sub    { font-size: 13px; color: var(--text-muted); margin-bottom: 28px; }
+
+    .pin-dots {
+      display: flex; gap: 14px; margin-bottom: 32px;
+    }
+
+    .pin-dot {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      background: transparent;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .pin-dot.filled { background: var(--red); border-color: var(--red); }
+
+    .pin-pad {
+      display: grid;
+      grid-template-columns: repeat(3, 72px);
+      gap: 10px;
+    }
+
+    .pin-key {
+      height: 60px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; font-weight: 600;
+      cursor: pointer;
+      transition: all 0.12s;
+      color: var(--text);
+    }
+    .pin-key:active { background: var(--surface2); transform: scale(0.93); }
+    .pin-key.del    { font-size: 18px; color: var(--text-muted); }
+    .pin-key.empty  { visibility: hidden; }
+
+    .pin-error {
+      color: var(--red); font-size: 13px;
+      margin-top: 16px; height: 18px; text-align: center;
+    }
+
+    .pin-back {
+      font-size: 12px; color: var(--text-muted);
+      margin-top: 20px; cursor: pointer;
+    }
+
+    /* ===== APP ===== */
+    #app-screen {
+      display: none;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .app-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 18px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+    }
+
+    .header-left { display: flex; align-items: center; gap: 10px; }
+
+    .header-logo {
+      width: 34px; height: 34px;
+      background: var(--red);
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 900; color: #fff;
+    }
+
+    .header-info h1 { font-size: 15px; font-weight: 700; }
+    .header-info p  { font-size: 11px; color: var(--text-muted); }
+
+    .logout-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 12px; color: var(--text-muted);
+      cursor: pointer; transition: all 0.18s;
+    }
+    .logout-btn:hover { border-color: var(--red); color: var(--red); }
+
+    .greeting-bar { padding: 18px 18px 6px; }
+    .greeting-bar h2 { font-size: 20px; font-weight: 700; }
+    .greeting-bar h2 span { color: var(--red); }
+    .greeting-bar p { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+    /* Grid 5 módulos: 2+2+1 */
+    .modules-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      padding: 14px 18px 28px;
+    }
+
+    .module-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+      overflow: hidden;
+      min-height: 130px;
+    }
+
+    /* Último card (5º) ocupa fila completa */
+    .module-card.full { grid-column: 1 / -1; min-height: 90px; flex-direction: row; align-items: center; }
+
+    .module-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .module-card:active { transform: scale(0.97); }
+
+    .module-card.red    { --accent: var(--red);    --glow: var(--red-glow); }
+    .module-card.orange { --accent: var(--orange);  --glow: var(--orange-glow); }
+    .module-card.blue   { --accent: var(--blue);   --glow: var(--blue-glow); }
+    .module-card.purple { --accent: var(--purple);  --glow: var(--purple-glow); }
+    .module-card.green  { --accent: var(--green);  --glow: var(--green-glow); }
+
+    .module-card:hover, .module-card:active {
+      background: var(--glow);
+      border-color: var(--accent);
+    }
+    .module-card::before { background: var(--accent); }
+    .module-card:hover::before { opacity: 1; }
+
+    .module-icon {
+      width: 48px; height: 48px;
+      background: var(--glow);
+      border-radius: 13px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px;
+      border: 1px solid var(--accent);
+      flex-shrink: 0;
+    }
+
+    .module-label {
+      font-size: 14px; font-weight: 700; color: var(--text);
+    }
+
+    .module-arrow {
+      position: absolute;
+      bottom: 14px; right: 14px;
+      font-size: 16px;
+      color: var(--accent);
+      opacity: 0.6;
+    }
+
+    /* full card arrow inline */
+    .module-card.full .module-arrow {
+      position: static;
+      margin-left: auto;
+      opacity: 0.6;
+    }
+
+    /* ===== MODAL BUZÓN ===== */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 200;
+      align-items: flex-end; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal-sheet {
+      background: var(--surface);
+      border-radius: 24px 24px 0 0;
+      border: 1px solid var(--border); border-bottom: none;
+      width: 100%; max-width: 480px;
+      max-height: 90vh; overflow-y: auto;
+      padding: 0 0 40px;
+      animation: slideUp 0.28s ease;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(40px); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+
+    .modal-handle {
+      width: 40px; height: 4px;
+      background: var(--border); border-radius: 2px;
+      margin: 14px auto 0;
+    }
+
+    .modal-header {
+      padding: 18px 22px 0;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .modal-title { font-size: 18px; font-weight: 700; }
+
+    .modal-close {
+      width: 30px; height: 30px;
+      background: var(--surface2); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 15px; color: var(--text-muted);
+    }
+
+    .modal-body { padding: 18px 22px; }
+
+    .tab-bar {
+      display: flex;
+      background: var(--surface2);
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 20px;
+    }
+    .tab-btn {
+      flex: 1; text-align: center;
+      padding: 8px;
+      font-size: 12px; font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer; color: var(--text-muted);
+      transition: all 0.18s;
+    }
+    .tab-btn.active { background: var(--green); color: #fff; }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Encuesta */
+    .survey-item { margin-bottom: 20px; }
+    .survey-question { font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+    .stars { display: flex; gap: 6px; }
+    .star {
+      font-size: 26px; cursor: pointer;
+      color: var(--border);
+      transition: all 0.15s; filter: grayscale(1);
+    }
+    .star.active, .star:hover { color: #f9a825; filter: none; transform: scale(1.15); }
+
+    /* Buzón */
+    .form-group { margin-bottom: 16px; }
+    .form-label { font-size: 12px; color: var(--text-muted); margin-bottom: 7px; display: block; }
+    .form-textarea, .form-select {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 13px;
+      color: var(--text); font-size: 13px; font-family: inherit;
+      outline: none; transition: border-color 0.18s;
+    }
+    .form-textarea { min-height: 90px; resize: none; }
+    .form-textarea:focus, .form-select:focus { border-color: var(--green); }
+    .form-select { appearance: none; cursor: pointer; }
+
+    .submit-btn {
+      width: 100%;
+      background: var(--green); border: none;
+      border-radius: 12px; padding: 14px;
+      font-size: 14px; font-weight: 700; color: #fff;
+      cursor: pointer; transition: all 0.18s; margin-top: 4px;
+    }
+    .submit-btn:active { transform: scale(0.97); background: #1b5e20; }
+
+    .success-msg { display: none; text-align: center; padding: 20px; }
+    .success-msg .emoji { font-size: 44px; }
+    .success-msg p { margin-top: 10px; font-weight: 600; }
+
+    /* Historial */
+    .sugerencia-item {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 13px;
+      margin-bottom: 8px;
+    }
+    .sugerencia-meta { font-size: 10px; color: var(--text-muted); margin-bottom: 4px; }
+    .sugerencia-text { font-size: 12px; }
+
+    .empty-state {
+      text-align: center; padding: 28px 20px;
+      color: var(--text-muted); font-size: 13px;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 28px; left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #2e7d32; color: #fff;
+      padding: 11px 22px;
+      border-radius: 100px;
+      font-size: 13px; font-weight: 600;
+      z-index: 999; transition: transform 0.3s ease;
+      white-space: nowrap;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    @media (min-width: 480px) {
+      .modules-grid { max-width: 480px; margin: 0 auto; }
+      #login-screen, #pin-screen { padding: 40px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ========== PASO 1: TALLER ========== -->
+<div id="login-screen">
+  <div class="login-logo-icon">M</div>
+  <div class="login-title">Motorcar · Operarios</div>
+
+  <div id="step-taller">
+    <div class="login-subtitle">Selecciona tu taller</div>
+    <div class="login-card">
+      <div class="taller-btn" onclick="selectTaller('JM')" style="border-color:#e53935">
+        <div class="taller-icon" style="background:#e53935">JM</div>
+        <div><div class="taller-name">Joan Motorcar</div><div class="taller-sub">Chapa · Pintura · Carrocería</div></div>
+      </div>
+      <div class="taller-btn" onclick="selectTaller('RM')" style="border-color:#1565c0">
+        <div class="taller-icon" style="background:#1565c0">RM</div>
+        <div><div class="taller-name">Raul Motorcar</div><div class="taller-sub">Mecánica · Electricidad</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PASO 2: OPERARIO -->
+  <div id="step-operario" style="display:none">
+    <div class="login-subtitle" id="step2-subtitle"></div>
+    <div class="login-card">
+      <div class="back-btn" onclick="backToTaller()">← Cambiar taller</div>
+      <div class="op-list" id="operario-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PASO 3: PIN ========== -->
+<div id="pin-screen">
+  <div class="pin-title" id="pin-name"></div>
+  <div class="pin-sub">Introduce tu PIN</div>
+  <div class="pin-dots">
+    <div class="pin-dot" id="d0"></div>
+    <div class="pin-dot" id="d1"></div>
+    <div class="pin-dot" id="d2"></div>
+    <div class="pin-dot" id="d3"></div>
+  </div>
+  <div class="pin-pad">
+    <div class="pin-key" onclick="pinKey('1')">1</div>
+    <div class="pin-key" onclick="pinKey('2')">2</div>
+    <div class="pin-key" onclick="pinKey('3')">3</div>
+    <div class="pin-key" onclick="pinKey('4')">4</div>
+    <div class="pin-key" onclick="pinKey('5')">5</div>
+    <div class="pin-key" onclick="pinKey('6')">6</div>
+    <div class="pin-key" onclick="pinKey('7')">7</div>
+    <div class="pin-key" onclick="pinKey('8')">8</div>
+    <div class="pin-key" onclick="pinKey('9')">9</div>
+    <div class="pin-key empty"></div>
+    <div class="pin-key" onclick="pinKey('0')">0</div>
+    <div class="pin-key del" onclick="pinDel()">⌫</div>
+  </div>
+  <div class="pin-error" id="pin-error"></div>
+  <div class="pin-back" onclick="backToOperarios()">← Volver</div>
+</div>
+
+<!-- ========== APP PRINCIPAL ========== -->
+<div id="app-screen">
+  <header class="app-header">
+    <div class="header-left">
+      <div class="header-logo">M</div>
+      <div class="header-info">
+        <h1>Motorcar</h1>
+        <p id="header-role"></p>
+      </div>
+    </div>
+    <div class="logout-btn" onclick="logout()">Salir</div>
+  </header>
+
+  <div class="greeting-bar">
+    <h2>Hola, <span id="greeting-name"></span> 👋</h2>
+    <p id="greeting-date"></p>
+  </div>
+
+  <div class="modules-grid">
+    <div class="module-card orange" onclick="openModule('fichajes')">
+      <div class="module-icon">⏱️</div>
+      <div class="module-label">Fichajes</div>
+      <div class="module-arrow">→</div>
+    </div>
+
+    <div class="module-card red" onclick="openModule('tickets')">
+      <div class="module-icon">🎫</div>
+      <div class="module-label">Tickets</div>
+      <div class="module-arrow">→</div>
+    </div>
+
+    <div class="module-card blue" onclick="openModule('pedidos')">
+      <div class="module-icon">🚗</div>
+      <div class="module-label">Pedidos</div>
+      <div class="module-arrow">→</div>
+    </div>
+
+    <div class="module-card purple" onclick="openModule('recambios')">
+      <div class="module-icon">🔩</div>
+      <div class="module-label">Recambios</div>
+      <div class="module-arrow">→</div>
+    </div>
+
+    <div class="module-card orange full" onclick="openCitas()">
+      <div class="module-icon">📅</div>
+      <div class="module-label">Solicitar Cita</div>
+      <div class="module-arrow">→</div>
+    </div>
+
+    <div class="module-card green full" onclick="openBuzon()">
+      <div class="module-icon">💡</div>
+      <div class="module-label">Buzón Sugerencias</div>
+      <div class="module-arrow">→</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== MODAL CITAS ========== -->
+<div class="modal-overlay" id="citas-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">📅 Solicitar Cita</div>
+      <div class="modal-close" onclick="closeCitas()">✕</div>
+    </div>
+    <div class="modal-body">
+      <div id="citas-form">
+        <div class="form-group">
+          <label class="form-label">Motivo</label>
+          <select class="form-select" id="cita-motivo">
+            <option value="vacaciones">🏖️ Vacaciones / días libres</option>
+            <option value="baja">🏥 Baja / asunto médico</option>
+            <option value="nomina">💶 Consulta nómina</option>
+            <option value="horario">🕐 Cambio de horario</option>
+            <option value="personal">👤 Asunto personal</option>
+            <option value="otro">📌 Otro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Fecha preferida</label>
+          <input type="date" class="form-textarea" id="cita-fecha" style="min-height:auto;padding:11px 13px">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mensaje (opcional)</label>
+          <textarea class="form-textarea" id="cita-mensaje" placeholder="Añade más detalle si lo necesitas..."></textarea>
+        </div>
+        <button class="submit-btn" style="background:#ff6d00" onclick="submitCita()">Enviar solicitud</button>
+      </div>
+      <div class="success-msg" id="citas-ok">
+        <div class="emoji">✅</div>
+        <p>Solicitud enviada</p>
+      </div>
+
+      <div style="margin-top:20px">
+        <div class="form-label" style="margin-bottom:10px">Mis solicitudes anteriores</div>
+        <div id="citas-historial"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== MODAL BUZÓN ========== -->
+<div class="modal-overlay" id="buzon-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">💡 Buzón Sugerencias</div>
+      <div class="modal-close" onclick="closeBuzon()">✕</div>
+    </div>
+    <div class="modal-body">
+      <div class="tab-bar">
+        <div class="tab-btn active" onclick="switchTab('encuesta')">📋 Encuesta</div>
+        <div class="tab-btn" onclick="switchTab('buzon')">📬 Escribir</div>
+        <div class="tab-btn" onclick="switchTab('historial')">📁 Historial</div>
+      </div>
+
+      <div class="tab-content active" id="tab-encuesta">
+        <div id="encuesta-form">
+          <div class="survey-item">
+            <div class="survey-question">🛠️ Estado del taller</div>
+            <div class="stars"><span class="star" onclick="rateStar(this,'taller',1)">★</span><span class="star" onclick="rateStar(this,'taller',2)">★</span><span class="star" onclick="rateStar(this,'taller',3)">★</span><span class="star" onclick="rateStar(this,'taller',4)">★</span><span class="star" onclick="rateStar(this,'taller',5)">★</span></div>
+          </div>
+          <div class="survey-item">
+            <div class="survey-question">🔧 Herramientas y equipos</div>
+            <div class="stars"><span class="star" onclick="rateStar(this,'herramientas',1)">★</span><span class="star" onclick="rateStar(this,'herramientas',2)">★</span><span class="star" onclick="rateStar(this,'herramientas',3)">★</span><span class="star" onclick="rateStar(this,'herramientas',4)">★</span><span class="star" onclick="rateStar(this,'herramientas',5)">★</span></div>
+          </div>
+          <div class="survey-item">
+            <div class="survey-question">📦 Stock de material</div>
+            <div class="stars"><span class="star" onclick="rateStar(this,'stock',1)">★</span><span class="star" onclick="rateStar(this,'stock',2)">★</span><span class="star" onclick="rateStar(this,'stock',3)">★</span><span class="star" onclick="rateStar(this,'stock',4)">★</span><span class="star" onclick="rateStar(this,'stock',5)">★</span></div>
+          </div>
+          <div class="survey-item">
+            <div class="survey-question">😊 Ambiente de trabajo</div>
+            <div class="stars"><span class="star" onclick="rateStar(this,'ambiente',1)">★</span><span class="star" onclick="rateStar(this,'ambiente',2)">★</span><span class="star" onclick="rateStar(this,'ambiente',3)">★</span><span class="star" onclick="rateStar(this,'ambiente',4)">★</span><span class="star" onclick="rateStar(this,'ambiente',5)">★</span></div>
+          </div>
+          <button class="submit-btn" onclick="submitEncuesta()">Enviar encuesta</button>
+        </div>
+        <div class="success-msg" id="encuesta-ok">
+          <div class="emoji">✅</div>
+          <p>¡Encuesta enviada! Gracias.</p>
+        </div>
+      </div>
+
+      <div class="tab-content" id="tab-buzon">
+        <div class="form-group">
+          <label class="form-label">Categoría</label>
+          <select class="form-select" id="buzon-categoria">
+            <option value="mejora">💡 Propuesta de mejora</option>
+            <option value="problema">⚠️ Problema en taller</option>
+            <option value="herramienta">🔧 Herramienta o equipo</option>
+            <option value="seguridad">🦺 Seguridad</option>
+            <option value="otro">📌 Otro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Sugerencia o comentario</label>
+          <textarea class="form-textarea" id="buzon-texto" placeholder="Escribe aquí..."></textarea>
+        </div>
+        <button class="submit-btn" onclick="submitBuzon()">Enviar</button>
+      </div>
+
+      <div class="tab-content" id="tab-historial">
+        <div id="historial-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ===== CONFIGURACIÓN =====
+  // Para cambiar PINs: modifica el campo "pin" de cada operario
+  const TALLERES = {
+    JM: {
+      nombre: 'Joan Motorcar',
+      color: '#e53935',
+      operarios: [
+        { nombre: 'Dani Bujidos', iniciales: 'DB', pin: '5001' },
+        { nombre: 'Zaca',         iniciales: 'ZA', pin: '5002' },
+        { nombre: 'Xisco Ramis',  iniciales: 'XR', pin: '4002' },
+        { nombre: 'Robert',       iniciales: 'RO', pin: '4001' },
+        { nombre: 'Cristina',     iniciales: 'CR', pin: '0000' }, // PIN pendiente de asignar
+        { nombre: 'Pablo',        iniciales: 'PA', pin: '6001' },
+        { nombre: 'Silvia',       iniciales: 'SI', pin: '2001' },
+        { nombre: 'Thays',        iniciales: 'TH', pin: '2002' },
+        { nombre: 'Coto',         iniciales: 'CO', pin: '1211' },
+        { nombre: 'Marga',        iniciales: 'MA', pin: '3001' },
+      ]
+    },
+    RM: {
+      nombre: 'Raul Motorcar',
+      color: '#1565c0',
+      operarios: [
+        { nombre: 'Josetxu',  iniciales: 'JT', pin: '7001' },
+        { nombre: 'Angel',    iniciales: 'AN', pin: '7002' },
+        { nombre: 'Cristian', iniciales: 'CT', pin: '7004' },
+        { nombre: 'Rafa',     iniciales: 'RA', pin: '7003' },
+        { nombre: 'Sara',     iniciales: 'SA', pin: '2003' },
+        { nombre: 'Bernat',   iniciales: 'BE', pin: '6002' },
+        { nombre: 'Silvia',   iniciales: 'SI', pin: '2001' },
+        { nombre: 'Thays',    iniciales: 'TH', pin: '2002' },
+        { nombre: 'Coto',     iniciales: 'CO', pin: '1211' },
+      ]
+    }
+  };
+
+  const APP_URLS = {
+    fichajes:  'https://grupomotorcar-maker.github.io/FICHAJESAPP/',
+    tickets:   'https://grupomotorcar-maker.github.io/ticketsmotorcar/tickets-motorcar.html',
+    pedidos:   'https://script.google.com/a/macros/grupomotorcar.com/s/AKfycbxDk85j1wxV3OuWDLwXjifexe68sooHi_2GQH3BUDAFnynVwgvTkiIDYGNpOXrJ5muy/exec',
+    recambios: 'https://grupomotorcar-maker.github.io/motorcar-app/',
+  };
+
+  // ===== ESTADO =====
+  let currentTaller = null;
+  let currentOperario = null;
+  let pinInput = '';
+  let ratings = {};
+
+  // ===== INIT =====
+  function init() {
+    // Recuperar sesión guardada
+    const saved = sessionStorage.getItem('mc_session');
+    if (saved) {
+      const s = JSON.parse(saved);
+      currentTaller = s.taller;
+      currentOperario = s.operario;
+      enterApp();
+      return;
+    }
+    updateDate();
+    renderHistorial();
+  }
+
+  function updateDate() {
+    const opts = { weekday:'long', day:'numeric', month:'long' };
+    const str = new Date().toLocaleDateString('es-ES', opts);
+    const cap = str.charAt(0).toUpperCase() + str.slice(1);
+    const el = document.getElementById('greeting-date');
+    if (el) el.textContent = cap;
+  }
+
+  // ===== PASO 1: TALLER =====
+  function selectTaller(key) {
+    currentTaller = key;
+    document.getElementById('step-taller').style.display = 'none';
+    document.getElementById('step-operario').style.display = 'block';
+    document.getElementById('step2-subtitle').textContent = TALLERES[key].nombre;
+    buildOperarioList(key);
+  }
+
+  function backToTaller() {
+    currentTaller = null;
+    document.getElementById('step-operario').style.display = 'none';
+    document.getElementById('step-taller').style.display = 'block';
+  }
+
+  function buildOperarioList(key) {
+    const t = TALLERES[key];
+    document.getElementById('operario-list').innerHTML = t.operarios.map(op => `
+      <div class="op-btn" onclick="selectOperario('${op.nombre}')">
+        <div class="op-av" style="background:${t.color}">${op.iniciales}</div>
+        <div class="op-name">${op.nombre}</div>
+      </div>
+    `).join('');
+  }
+
+  // ===== PASO 2: OPERARIO → PIN =====
+  function selectOperario(nombre) {
+    currentOperario = nombre;
+    pinInput = '';
+    updatePinDots();
+    document.getElementById('pin-name').textContent = nombre;
+    document.getElementById('pin-error').textContent = '';
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('pin-screen').style.display = 'flex';
+  }
+
+  function backToOperarios() {
+    currentOperario = null;
+    pinInput = '';
+    document.getElementById('pin-screen').style.display = 'none';
+    document.getElementById('login-screen').style.display = 'flex';
+  }
+
+  // ===== PIN =====
+  function pinKey(digit) {
+    if (pinInput.length >= 4) return;
+    pinInput += digit;
+    updatePinDots();
+    if (pinInput.length === 4) verifyPin();
+  }
+
+  function pinDel() {
+    pinInput = pinInput.slice(0, -1);
+    updatePinDots();
+    document.getElementById('pin-error').textContent = '';
+  }
+
+  function updatePinDots() {
+    for (let i = 0; i < 4; i++) {
+      document.getElementById('d' + i).classList.toggle('filled', i < pinInput.length);
+    }
+  }
+
+  function verifyPin() {
+    const taller = TALLERES[currentTaller];
+    const op = taller.operarios.find(o => o.nombre === currentOperario);
+    if (op && pinInput === op.pin) {
+      sessionStorage.setItem('mc_session', JSON.stringify({
+        taller: currentTaller,
+        operario: currentOperario
+      }));
+      document.getElementById('pin-screen').style.display = 'none';
+      enterApp();
+    } else {
+      document.getElementById('pin-error').textContent = 'PIN incorrecto';
+      pinInput = '';
+      updatePinDots();
+    }
+  }
+
+  // ===== APP =====
+  function enterApp() {
+    const taller = TALLERES[currentTaller];
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('pin-screen').style.display = 'none';
+    document.getElementById('app-screen').style.display = 'flex';
+    document.getElementById('greeting-name').textContent = currentOperario.split(' ')[0];
+    document.getElementById('header-role').textContent = taller.nombre;
+    updateDate();
+    renderHistorial();
+  }
+
+  function logout() {
+    sessionStorage.removeItem('mc_session');
+    currentTaller = null;
+    currentOperario = null;
+    pinInput = '';
+    document.getElementById('app-screen').style.display = 'none';
+    document.getElementById('step-operario').style.display = 'none';
+    document.getElementById('step-taller').style.display = 'block';
+    document.getElementById('login-screen').style.display = 'flex';
+  }
+
+  function openModule(key) {
+    const url = APP_URLS[key];
+    if (url) window.open(url, '_blank');
+  }
+
+  // ===== MODAL CITAS =====
+  const citaLabels = { vacaciones:'🏖️ Vacaciones', baja:'🏥 Baja', nomina:'💶 Nómina', horario:'🕐 Horario', personal:'👤 Personal', otro:'📌 Otro' };
+
+  function openCitas() {
+    document.getElementById('citas-modal').classList.add('open');
+    renderCitasHistorial();
+  }
+  function closeCitas() {
+    document.getElementById('citas-modal').classList.remove('open');
+  }
+  document.getElementById('citas-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeCitas();
+  });
+
+  function submitCita() {
+    const motivo  = document.getElementById('cita-motivo').value;
+    const fecha   = document.getElementById('cita-fecha').value;
+    const mensaje = document.getElementById('cita-mensaje').value.trim();
+    const arr = JSON.parse(localStorage.getItem('mc_citas') || '[]');
+    arr.unshift({ operario:currentOperario, taller:currentTaller, fecha:new Date().toISOString(), citaFecha:fecha, motivo, mensaje });
+    localStorage.setItem('mc_citas', JSON.stringify(arr));
+    document.getElementById('citas-form').style.display = 'none';
+    document.getElementById('citas-ok').style.display = 'block';
+    setTimeout(() => {
+      document.getElementById('citas-form').style.display = 'block';
+      document.getElementById('citas-ok').style.display = 'none';
+      document.getElementById('cita-fecha').value = '';
+      document.getElementById('cita-mensaje').value = '';
+      renderCitasHistorial();
+    }, 2000);
+  }
+
+  function renderCitasHistorial() {
+    const el = document.getElementById('citas-historial');
+    if (!el) return;
+    const arr = JSON.parse(localStorage.getItem('mc_citas') || '[]').filter(c => c.operario === currentOperario);
+    if (!arr.length) { el.innerHTML = '<div class="empty-state" style="padding:14px 0">Sin solicitudes anteriores</div>'; return; }
+    el.innerHTML = arr.slice(0,5).map(c => {
+      const f = new Date(c.fecha).toLocaleDateString('es-ES', { day:'numeric', month:'short' });
+      const cf = c.citaFecha ? ` · Para: ${c.citaFecha}` : '';
+      return `<div class="sugerencia-item"><div class="sugerencia-meta">${citaLabels[c.motivo]||c.motivo} · ${f}${cf}</div>${c.mensaje ? `<div class="sugerencia-text">${c.mensaje}</div>` : ''}</div>`;
+    }).join('');
+  }
+
+  // ===== MODAL BUZÓN =====
+  function openBuzon() {
+    document.getElementById('buzon-modal').classList.add('open');
+    renderHistorial();
+  }
+
+  function closeBuzon() {
+    document.getElementById('buzon-modal').classList.remove('open');
+  }
+
+  document.getElementById('buzon-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeBuzon();
+  });
+
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach((b, i) => {
+      b.classList.toggle('active', ['encuesta','buzon','historial'][i] === tab);
+    });
+    document.querySelectorAll('.tab-content').forEach((c, i) => {
+      c.classList.toggle('active', ['tab-encuesta','tab-buzon','tab-historial'][i] === `tab-${tab}`);
+    });
+    if (tab === 'historial') renderHistorial();
+  }
+
+  // ===== ENCUESTA =====
+  function rateStar(el, q, v) {
+    ratings[q] = v;
+    el.parentElement.querySelectorAll('.star').forEach((s, i) => s.classList.toggle('active', i < v));
+  }
+
+  function submitEncuesta() {
+    const qs = ['taller','herramientas','stock','ambiente'];
+    if (qs.some(q => !ratings[q])) { showToast('⚠️ Valora todas las preguntas'); return; }
+    const arr = JSON.parse(localStorage.getItem('mc_encuestas') || '[]');
+    arr.push({ tipo:'encuesta', operario:currentOperario, taller:currentTaller, fecha:new Date().toISOString(), data:{...ratings} });
+    localStorage.setItem('mc_encuestas', JSON.stringify(arr));
+    document.getElementById('encuesta-form').style.display = 'none';
+    document.getElementById('encuesta-ok').style.display = 'block';
+    ratings = {};
+    setTimeout(() => {
+      document.getElementById('encuesta-form').style.display = 'block';
+      document.getElementById('encuesta-ok').style.display = 'none';
+      document.querySelectorAll('.star').forEach(s => s.classList.remove('active'));
+    }, 2500);
+  }
+
+  // ===== BUZÓN =====
+  function submitBuzon() {
+    const texto = document.getElementById('buzon-texto').value.trim();
+    const cat   = document.getElementById('buzon-categoria').value;
+    if (!texto) { showToast('✏️ Escribe tu sugerencia primero'); return; }
+    const arr = JSON.parse(localStorage.getItem('mc_sugerencias') || '[]');
+    arr.unshift({ operario:currentOperario, taller:currentTaller, fecha:new Date().toISOString(), categoria:cat, texto });
+    localStorage.setItem('mc_sugerencias', JSON.stringify(arr));
+    document.getElementById('buzon-texto').value = '';
+    showToast('📬 Sugerencia enviada');
+    switchTab('historial');
+  }
+
+  const catLabels = { mejora:'💡 Mejora', problema:'⚠️ Problema', herramienta:'🔧 Herramienta', seguridad:'🦺 Seguridad', otro:'📌 Otro' };
+
+  function renderHistorial() {
+    const list = document.getElementById('historial-list');
+    if (!list) return;
+    const arr = JSON.parse(localStorage.getItem('mc_sugerencias') || '[]');
+    if (!arr.length) { list.innerHTML = '<div class="empty-state">Aún no hay sugerencias</div>'; return; }
+    list.innerHTML = arr.map(s => {
+      const f = new Date(s.fecha).toLocaleDateString('es-ES', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+      return `<div class="sugerencia-item"><div class="sugerencia-meta">${catLabels[s.categoria]||s.categoria} · ${s.operario} · ${f}</div><div class="sugerencia-text">${s.texto}</div></div>`;
+    }).join('');
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  init();
+</script>
+</body>
+</html>
