@@ -535,6 +535,26 @@
     .aviso-status { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
     .aviso-text { font-size: 12px; flex: 1; line-height: 1.4; }
     .aviso-meta { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
+
+    .user-chip {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 4px 10px 4px 4px;
+    }
+    .user-chip-avatar {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 800; color: #fff;
+    }
+    .user-chip-name {
+      font-size: 12px; font-weight: 700;
+      color: var(--text);
+      max-width: 90px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
   </style>
 </head>
 <body>
@@ -600,18 +620,28 @@
 <div id="app-screen">
   <header class="app-header">
     <div class="header-left">
-      <div class="header-logo">M</div>
+      <div class="header-logo" id="header-logo">M</div>
       <div class="header-info">
         <h1>Motorcar</h1>
         <p id="header-role"></p>
       </div>
     </div>
-    <div class="logout-btn" onclick="logout()">Salir</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="user-chip" id="user-chip">
+        <div class="user-chip-avatar" id="user-chip-avatar"></div>
+        <div class="user-chip-name" id="user-chip-name"></div>
+      </div>
+      <div class="logout-btn" onclick="logout()">Salir</div>
+    </div>
   </header>
 
   <div class="greeting-bar">
     <h2>Hola, <span id="greeting-name"></span> 👋</h2>
     <p id="greeting-date"></p>
+    <div id="session-badge" style="display:inline-flex;align-items:center;gap:6px;margin-top:6px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:11px;color:var(--text-muted)">
+      <span id="session-dot" style="width:8px;height:8px;border-radius:50%;display:inline-block"></span>
+      <span id="session-label"></span>
+    </div>
   </div>
 
   <div class="modules-grid">
@@ -701,6 +731,7 @@
           <label class="form-label">Trabajos a realizar</label>
           <textarea class="form-textarea" id="cita-trabajos" placeholder="Describe los trabajos necesarios..." rows="3"></textarea>
         </div>
+        <div style="font-size:11px;color:var(--text-muted);text-align:center;margin-bottom:6px">👤 Enviando como: <strong id="cita-session-name"></strong></div>
         <button class="submit-btn" style="background:#ff6d00" onclick="submitCitaForm()">Enviar solicitud a oficina</button>
       </div>
       <div class="success-msg" id="citas-form-ok">
@@ -781,7 +812,8 @@
             <div class="survey-question">😊 Ambiente de trabajo</div>
             <div class="stars"><span class="star" onclick="rateStar(this,'ambiente',1)">★</span><span class="star" onclick="rateStar(this,'ambiente',2)">★</span><span class="star" onclick="rateStar(this,'ambiente',3)">★</span><span class="star" onclick="rateStar(this,'ambiente',4)">★</span><span class="star" onclick="rateStar(this,'ambiente',5)">★</span></div>
           </div>
-          <button class="submit-btn" onclick="submitEncuesta()">Enviar encuesta</button>
+          <div style="font-size:11px;color:var(--text-muted);text-align:center;margin-bottom:6px">👤 Enviando como: <strong id="enc-session-name"></strong></div>
+        <button class="submit-btn" onclick="submitEncuesta()">Enviar encuesta</button>
         </div>
         <div class="success-msg" id="encuesta-ok">
           <div class="emoji">✅</div>
@@ -1092,8 +1124,25 @@
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('pin-screen').style.display = 'none';
     document.getElementById('app-screen').style.display = 'flex';
+
+    // Nombre en saludo
     document.getElementById('greeting-name').textContent = currentOperario.split(' ')[0];
     document.getElementById('header-role').textContent = taller.nombre;
+
+    // Badge de sesión en greeting bar
+    document.getElementById('session-dot').style.background = taller.color;
+    document.getElementById('session-label').textContent = currentOperario + ' · ' + taller.nombre;
+
+    // Chip en header
+    const op = taller.operarios.find(o => o.nombre === currentOperario);
+    const avatar = document.getElementById('user-chip-avatar');
+    avatar.textContent = op ? op.iniciales : currentOperario.substring(0,2).toUpperCase();
+    avatar.style.background = taller.color;
+    document.getElementById('user-chip-name').textContent = currentOperario.split(' ')[0];
+
+    // Logo color del taller
+    document.getElementById('header-logo').style.background = taller.color;
+
     updateDate();
     renderHistorial();
   }
@@ -1324,6 +1373,7 @@
 
   // ===== MODAL VACACIONES =====
   function openVacaciones() {
+    const vn = document.getElementById('vac-session-name'); if(vn) vn.textContent = currentOperario + ' · ' + (TALLERES[currentTaller]?.nombre || '');
     document.getElementById('vacaciones-modal').classList.add('open');
     renderVacacionesHistorial();
     logAccion('vacaciones', 'abrir', '');
@@ -1378,6 +1428,7 @@
 
   // ===== MODAL BUZÓN =====
   function openBuzon() {
+    const en = document.getElementById('enc-session-name'); if(en) en.textContent = currentOperario + ' · ' + (TALLERES[currentTaller]?.nombre || '');
     document.getElementById('buzon-modal').classList.add('open');
     renderHistorial();
     logAccion('buzon', 'abrir', '');
