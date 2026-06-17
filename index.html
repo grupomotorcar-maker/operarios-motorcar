@@ -452,6 +452,89 @@
       .modules-grid { max-width: 480px; margin: 0 auto; }
       #login-screen, #pin-screen { padding: 40px 24px; }
     }
+
+    /* ===== IFRAME VIEWER ===== */
+    #iframe-viewer {
+      display: none;
+      position: fixed; inset: 0;
+      z-index: 500;
+      flex-direction: column;
+      background: var(--bg);
+    }
+    #iframe-viewer.open { display: flex; }
+
+    .iframe-bar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px;
+      display: flex; align-items: center; gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .iframe-back {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 13px; font-weight: 600;
+      color: var(--text); cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .iframe-back:active { background: var(--red); border-color: var(--red); color:#fff; }
+
+    .iframe-title {
+      font-size: 14px; font-weight: 700;
+      color: var(--text-muted);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+
+    #app-iframe {
+      flex: 1;
+      border: none;
+      width: 100%;
+    }
+
+    /* Avisos */
+    .dest-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 9px 10px;
+      font-size: 12px; font-weight: 600;
+      cursor: pointer; text-align: center;
+      transition: all 0.15s;
+      color: var(--text-muted);
+    }
+    .dest-btn.active {
+      background: #0288d1;
+      border-color: #0288d1;
+      color: #fff;
+    }
+    .accion-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 8px;
+      font-size: 11px; font-weight: 600;
+      cursor: pointer; text-align: center;
+      transition: all 0.15s;
+      color: var(--text);
+      line-height: 1.3;
+    }
+    .accion-btn:active { transform: scale(0.95); background: var(--surface); }
+
+    .aviso-item {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 9px 12px;
+      margin-bottom: 6px;
+      display: flex; gap: 8px; align-items: flex-start;
+    }
+    .aviso-status { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+    .aviso-text { font-size: 12px; flex: 1; line-height: 1.4; }
+    .aviso-meta { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
   </style>
 </head>
 <body>
@@ -556,7 +639,7 @@
       <div class="module-arrow">→</div>
     </div>
 
-    <div class="module-card orange full" onclick="openModule('citas')">
+    <div class="module-card orange full" onclick="openCitasForm()">
       <div class="module-icon">📅</div>
       <div class="module-label">Solicitar Cita</div>
       <div class="module-arrow">→</div>
@@ -568,10 +651,62 @@
       <div class="module-arrow">→</div>
     </div>
 
+    <div class="module-card" style="--accent:#00897b;--glow:rgba(0,137,123,0.18)" onclick="openModule('limpieza')">
+      <div class="module-icon">🧹</div>
+      <div class="module-label">Limpieza</div>
+      <div class="module-arrow">→</div>
+    </div>
+
+    <div class="module-card" style="--accent:#0288d1;--glow:rgba(2,136,209,0.18)" onclick="openAvisos()">
+      <div class="module-icon">📲</div>
+      <div class="module-label">Avisos</div>
+      <div class="module-arrow">→</div>
+    </div>
+
     <div class="module-card green full" onclick="openBuzon()">
       <div class="module-icon">💡</div>
       <div class="module-label">Buzón Sugerencias</div>
       <div class="module-arrow">→</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== MODAL SOLICITAR CITA ========== -->
+<div class="modal-overlay" id="citas-form-modal">
+  <div class="modal-sheet" style="max-height:95vh">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">📅 Solicitar Cita</div>
+      <div class="modal-close" onclick="closeCitasForm()">✕</div>
+    </div>
+    <div class="modal-body">
+      <div id="citas-form-inner">
+        <div class="form-group">
+          <label class="form-label">Matrícula</label>
+          <input type="text" class="form-textarea" id="cita-matricula" placeholder="0000XXX" style="min-height:auto;padding:11px 13px;text-transform:uppercase">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Marca y Modelo</label>
+          <input type="text" class="form-textarea" id="cita-modelo" placeholder="Ej: Seat León 2019" style="min-height:auto;padding:11px 13px">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nombre Cliente</label>
+          <input type="text" class="form-textarea" id="cita-cliente" placeholder="Nombre completo" style="min-height:auto;padding:11px 13px">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Teléfono</label>
+          <input type="tel" class="form-textarea" id="cita-telefono" placeholder="600 000 000" style="min-height:auto;padding:11px 13px">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Trabajos a realizar</label>
+          <textarea class="form-textarea" id="cita-trabajos" placeholder="Describe los trabajos necesarios..." rows="3"></textarea>
+        </div>
+        <button class="submit-btn" style="background:#ff6d00" onclick="submitCitaForm()">Enviar solicitud a oficina</button>
+      </div>
+      <div class="success-msg" id="citas-form-ok">
+        <div class="emoji">✅</div>
+        <p>Solicitud enviada a la oficina</p>
+      </div>
     </div>
   </div>
 </div>
@@ -679,6 +814,101 @@
   </div>
 </div>
 
+
+<!-- ========== IFRAME VIEWER ========== -->
+<div id="iframe-viewer">
+  <div class="iframe-bar">
+    <div class="iframe-back" onclick="closeIframe()">← Menú</div>
+    <div class="iframe-title" id="iframe-title"></div>
+  </div>
+  <iframe id="app-iframe" src="" allow="camera; microphone; geolocation"></iframe>
+</div>
+
+<!-- ========== MODAL AVISOS ========== -->
+<div class="modal-overlay" id="avisos-modal">
+  <div class="modal-sheet" style="max-height:95vh">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">📲 Avisos</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <div id="avisos-settings-btn" onclick="toggleAvisosSettings()" style="cursor:pointer;font-size:18px;padding:4px 8px;border-radius:8px;background:var(--surface2)">⚙️</div>
+        <div class="modal-close" onclick="closeAvisos()">✕</div>
+      </div>
+    </div>
+    <div class="modal-body" style="padding-bottom:32px">
+
+      <!-- SETTINGS PANEL -->
+      <div id="avisos-settings-panel" style="display:none;background:var(--surface2);border-radius:12px;padding:14px;margin-bottom:16px">
+        <div class="form-label" style="margin-bottom:10px;font-size:13px;font-weight:700">⚙️ Configuración Telegram</div>
+        <div class="form-group">
+          <label class="form-label">Token del Bot</label>
+          <input type="text" class="form-textarea" id="tg-token" placeholder="123456:ABCdef..." style="min-height:auto;padding:10px 12px;font-size:12px">
+        </div>
+        <div class="form-label" style="margin-bottom:8px;margin-top:4px">Chat IDs (grupos / chats)</div>
+        <div class="form-group">
+          <label class="form-label">Grupo General</label>
+          <input type="text" class="form-textarea" id="tg-general" placeholder="-100xxxxxxxxx" style="min-height:auto;padding:10px 12px;font-size:12px">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Joan Motorcar</label>
+          <input type="text" class="form-textarea" id="tg-jm" placeholder="-100xxxxxxxxx" style="min-height:auto;padding:10px 12px;font-size:12px">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Raúl Motorcar</label>
+          <input type="text" class="form-textarea" id="tg-rm" placeholder="-100xxxxxxxxx" style="min-height:auto;padding:10px 12px;font-size:12px">
+        </div>
+        <div class="form-group">
+          <label class="form-label">FSR</label>
+          <input type="text" class="form-textarea" id="tg-fsr" placeholder="-100xxxxxxxxx" style="min-height:auto;padding:10px 12px;font-size:12px">
+        </div>
+        <button class="submit-btn" style="background:#0288d1;margin-top:4px" onclick="guardarConfigTg()">Guardar configuración</button>
+      </div>
+
+      <!-- DESTINATARIO -->
+      <div style="margin-bottom:14px">
+        <div class="form-label" style="margin-bottom:8px">Destinatario</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+          <div class="dest-btn active" id="dest-general" onclick="selDest('general')">👥 Grupo general</div>
+          <div class="dest-btn" id="dest-jm" onclick="selDest('jm')">🔴 Joan Motorcar</div>
+          <div class="dest-btn" id="dest-rm" onclick="selDest('rm')">🔵 Raúl Motorcar</div>
+          <div class="dest-btn" id="dest-fsr" onclick="selDest('fsr')">🟢 FSR</div>
+        </div>
+        <select class="form-select" id="dest-individual" onchange="selDestIndividual(this.value)">
+          <option value="">— O selecciona un operario —</option>
+        </select>
+      </div>
+
+      <!-- ACCIONES RÁPIDAS -->
+      <div style="margin-bottom:14px">
+        <div class="form-label" style="margin-bottom:8px">Acciones rápidas</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+          <div class="accion-btn" onclick="enviarRapido('🚗 Coche listo para entrega')">🚗 Coche listo para entrega</div>
+          <div class="accion-btn" onclick="enviarRapido('📞 Llamada de cliente pendiente')">📞 Llamada de cliente pendiente</div>
+          <div class="accion-btn" onclick="enviarRapido('🛠️ Material necesario — revisar almacén')">🛠️ Material necesario</div>
+          <div class="accion-btn" onclick="enviarRapido('⏰ Hora de comer')">⏰ Hora de comer</div>
+          <div class="accion-btn" onclick="enviarRapido('✅ Tarea completada')">✅ Tarea completada</div>
+          <div class="accion-btn" onclick="enviarRapido('⚠️ Incidencia en taller — atención')">⚠️ Incidencia en taller</div>
+          <div class="accion-btn" onclick="enviarRapido('📋 Reunión en 5 minutos')">📋 Reunión en 5 minutos</div>
+          <div class="accion-btn" onclick="enviarRapido('🔑 Llaves en recepción')">🔑 Llaves en recepción</div>
+        </div>
+      </div>
+
+      <!-- MENSAJE LIBRE -->
+      <div style="margin-bottom:14px">
+        <div class="form-label" style="margin-bottom:8px">Mensaje libre</div>
+        <textarea class="form-textarea" id="aviso-texto" placeholder="Escribe tu mensaje..." style="min-height:70px"></textarea>
+        <button class="submit-btn" style="background:#0288d1;margin-top:8px" onclick="enviarMensajeLibre()">📤 Enviar</button>
+      </div>
+
+      <!-- HISTORIAL -->
+      <div>
+        <div class="form-label" style="margin-bottom:8px">Últimos mensajes</div>
+        <div id="avisos-historial"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -742,6 +972,7 @@
     pedidos:   'https://script.google.com/a/macros/grupomotorcar.com/s/AKfycbxDk85j1wxV3OuWDLwXjifexe68sooHi_2GQH3BUDAFnynVwgvTkiIDYGNpOXrJ5muy/exec',
     recambios: 'https://grupomotorcar-maker.github.io/motorcar-app/',
     citas:     'https://citasmotorcarjm.netlify.app',
+    limpieza:  '',  // ← añade la URL cuando esté lista
   };
 
   // ===== ESTADO =====
@@ -878,6 +1109,11 @@
     document.getElementById('login-screen').style.display = 'flex';
   }
 
+  const MODULE_LABELS = {
+    fichajes: '⏱️ Fichajes', tickets: '🎫 Tickets',
+    pedidos: '🚗 Pedidos', recambios: '🔩 Recambios', citas: '📅 Solicitar Cita'
+  };
+
   function openModule(key) {
     const base = APP_URLS[key];
     if (!base) return;
@@ -886,8 +1122,203 @@
       taller:   currentTaller   || ''
     });
     const sep = base.includes('?') ? '&' : '?';
-    window.open(base + sep + params.toString(), '_blank');
+    const url = base + sep + params.toString();
+    document.getElementById('app-iframe').src = url;
+    document.getElementById('iframe-title').textContent = MODULE_LABELS[key] || key;
+    document.getElementById('iframe-viewer').classList.add('open');
     logAccion(key, 'abrir', base);
+  }
+
+  function closeIframe() {
+    document.getElementById('iframe-viewer').classList.remove('open');
+    document.getElementById('app-iframe').src = '';
+  }
+
+
+  // ===== MODAL SOLICITAR CITA =====
+  function openCitasForm() {
+    document.getElementById('citas-form-modal').classList.add('open');
+    logAccion('citas', 'abrir', '');
+  }
+  function closeCitasForm() {
+    document.getElementById('citas-form-modal').classList.remove('open');
+  }
+  document.getElementById('citas-form-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeCitasForm();
+  });
+
+  function submitCitaForm() {
+    const matricula = document.getElementById('cita-matricula').value.trim().toUpperCase();
+    const modelo    = document.getElementById('cita-modelo').value.trim();
+    const cliente   = document.getElementById('cita-cliente').value.trim();
+    const telefono  = document.getElementById('cita-telefono').value.trim();
+    const trabajos  = document.getElementById('cita-trabajos').value.trim();
+    if (!matricula || !cliente || !trabajos) {
+      showToast('⚠️ Matrícula, cliente y trabajos son obligatorios');
+      return;
+    }
+    if (LOG_ENDPOINT) {
+      fetch(LOG_ENDPOINT, {
+        method: 'POST', mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tipo: 'solicitud_cita',
+          taller: currentTaller, operario: currentOperario,
+          matricula, modelo, cliente, telefono, trabajos
+        })
+      }).catch(()=>{});
+    }
+    logAccion('citas', 'solicitud enviada', `${matricula} · ${cliente}`);
+    document.getElementById('citas-form-inner').style.display = 'none';
+    document.getElementById('citas-form-ok').style.display = 'block';
+    setTimeout(() => {
+      document.getElementById('citas-form-inner').style.display = 'block';
+      document.getElementById('citas-form-ok').style.display = 'none';
+      ['cita-matricula','cita-modelo','cita-cliente','cita-telefono','cita-trabajos']
+        .forEach(id => document.getElementById(id).value = '');
+      closeCitasForm();
+    }, 2200);
+  }
+
+
+  // ===== MÓDULO AVISOS =====
+  let avisoDest = 'general';
+  let avisosHistorial = [];
+
+  const DEST_KEYS = { general:'tg-general', jm:'tg-jm', rm:'tg-rm', fsr:'tg-fsr' };
+
+  function openAvisos() {
+    cargarConfigTg();
+    poblarOperariosSelect();
+    renderAvisosHistorial();
+    document.getElementById('avisos-modal').classList.add('open');
+    logAccion('avisos', 'abrir', '');
+  }
+  function closeAvisos() {
+    document.getElementById('avisos-modal').classList.remove('open');
+  }
+  document.getElementById('avisos-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeAvisos();
+  });
+
+  function toggleAvisosSettings() {
+    const p = document.getElementById('avisos-settings-panel');
+    p.style.display = p.style.display === 'none' ? 'block' : 'none';
+    if (p.style.display === 'block') cargarConfigTg();
+  }
+
+  function cargarConfigTg() {
+    const cfg = JSON.parse(localStorage.getItem('mc_tg_cfg') || '{}');
+    ['tg-token','tg-general','tg-jm','tg-rm','tg-fsr'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el && cfg[id]) el.value = cfg[id];
+    });
+  }
+
+  function guardarConfigTg() {
+    const cfg = {};
+    ['tg-token','tg-general','tg-jm','tg-rm','tg-fsr'].forEach(id => {
+      cfg[id] = document.getElementById(id).value.trim();
+    });
+    localStorage.setItem('mc_tg_cfg', JSON.stringify(cfg));
+    document.getElementById('avisos-settings-panel').style.display = 'none';
+    showToast('✅ Configuración guardada');
+  }
+
+  function selDest(key) {
+    avisoDest = key;
+    document.getElementById('dest-individual').value = '';
+    ['general','jm','rm','fsr'].forEach(k => {
+      document.getElementById('dest-'+k).classList.toggle('active', k === key);
+    });
+  }
+
+  function selDestIndividual(val) {
+    if (!val) return;
+    avisoDest = 'individual:' + val;
+    ['general','jm','rm','fsr'].forEach(k => document.getElementById('dest-'+k).classList.remove('active'));
+  }
+
+  function poblarOperariosSelect() {
+    if (!currentTaller) return;
+    const sel = document.getElementById('dest-individual');
+    const ops = TALLERES[currentTaller].operarios;
+    sel.innerHTML = '<option value="">— O selecciona un operario —</option>' +
+      ops.map(o => `<option value="${o.nombre}">${o.nombre}</option>`).join('');
+  }
+
+  async function enviarRapido(texto) {
+    await enviarTelegram(texto);
+  }
+
+  async function enviarMensajeLibre() {
+    const texto = document.getElementById('aviso-texto').value.trim();
+    if (!texto) { showToast('✏️ Escribe un mensaje'); return; }
+    await enviarTelegram(texto);
+    document.getElementById('aviso-texto').value = '';
+  }
+
+  async function enviarTelegram(texto) {
+    const cfg = JSON.parse(localStorage.getItem('mc_tg_cfg') || '{}');
+    const token = cfg['tg-token'];
+    if (!token) { showToast('⚙️ Configura el token primero'); toggleAvisosSettings(); return; }
+
+    let chatId;
+    if (avisoDest.startsWith('individual:')) {
+      const nombre = avisoDest.split(':')[1];
+      chatId = cfg['tg-ind-' + nombre];
+      if (!chatId) { showToast('⚠️ Sin chat ID para ' + nombre); return; }
+    } else {
+      chatId = cfg[DEST_KEYS[avisoDest]];
+    }
+    if (!chatId) { showToast('⚙️ Configura el chat ID del destinatario'); toggleAvisosSettings(); return; }
+
+    const prefix = `[${currentOperario} · ${TALLERES[currentTaller]?.nombre}]
+`;
+    const msgFinal = prefix + texto;
+
+    try {
+      const r = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: chatId, text: msgFinal, parse_mode: 'HTML' })
+      });
+      const d = await r.json();
+      const ok = d.ok;
+      registrarAviso(texto, ok);
+      showToast(ok ? '📤 Mensaje enviado' : '❌ Error al enviar');
+      logAccion('avisos', ok ? 'enviado' : 'error', texto.substring(0,60));
+    } catch(err) {
+      registrarAviso(texto, false);
+      showToast('❌ Sin conexión');
+    }
+  }
+
+  function registrarAviso(texto, ok) {
+    const arr = JSON.parse(localStorage.getItem('mc_avisos') || '[]');
+    arr.unshift({
+      texto, ok,
+      operario: currentOperario,
+      dest: avisoDest,
+      hora: new Date().toLocaleTimeString('es-ES', {hour:'2-digit', minute:'2-digit'})
+    });
+    localStorage.setItem('mc_avisos', JSON.stringify(arr.slice(0, 30)));
+    renderAvisosHistorial();
+  }
+
+  function renderAvisosHistorial() {
+    const el = document.getElementById('avisos-historial');
+    if (!el) return;
+    const arr = JSON.parse(localStorage.getItem('mc_avisos') || '[]');
+    if (!arr.length) { el.innerHTML = '<div class="empty-state">Sin mensajes recientes</div>'; return; }
+    el.innerHTML = arr.map(a => `
+      <div class="aviso-item">
+        <div class="aviso-status">${a.ok ? '✅' : '❌'}</div>
+        <div>
+          <div class="aviso-text">${a.texto}</div>
+          <div class="aviso-meta">${a.hora} · ${a.operario} → ${a.dest}</div>
+        </div>
+      </div>`).join('');
   }
 
   // ===== MODAL VACACIONES =====
@@ -909,10 +1340,18 @@
     const comentario = document.getElementById('vac-comentario').value.trim();
     if (!inicio || !fin) { showToast('⚠️ Indica las fechas'); return; }
     if (fin < inicio)    { showToast('⚠️ La fecha fin debe ser posterior'); return; }
+    // Guardar local
     const arr = JSON.parse(localStorage.getItem('mc_vacaciones') || '[]');
     arr.unshift({ operario:currentOperario, taller:currentTaller, fecha:new Date().toISOString(), inicio, fin, comentario });
     localStorage.setItem('mc_vacaciones', JSON.stringify(arr));
-    logAccion('vacaciones', 'solicitud enviada', `${inicio} → ${fin}`);
+    // Enviar datos completos al GAS (guarda en Sheet + manda email)
+    if (LOG_ENDPOINT) {
+      fetch(LOG_ENDPOINT, {
+        method: 'POST', mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tipo:'vacaciones', taller:currentTaller, operario:currentOperario, inicio, fin, comentario })
+      }).catch(()=>{});
+    }
     document.getElementById('vacaciones-form').style.display = 'none';
     document.getElementById('vacaciones-ok').style.display = 'block';
     setTimeout(() => {
@@ -973,7 +1412,14 @@
     const arr = JSON.parse(localStorage.getItem('mc_encuestas') || '[]');
     arr.push({ tipo:'encuesta', operario:currentOperario, taller:currentTaller, fecha:new Date().toISOString(), data:{...ratings} });
     localStorage.setItem('mc_encuestas', JSON.stringify(arr));
-    logAccion('buzon', 'encuesta enviada', Object.entries(ratings).map(([k,v])=>`${k}:${v}★`).join(' · '));
+    // Enviar valoraciones completas al GAS
+    if (LOG_ENDPOINT) {
+      fetch(LOG_ENDPOINT, {
+        method: 'POST', mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tipo:'encuesta', taller:currentTaller, operario:currentOperario, ratings:{...ratings} })
+      }).catch(()=>{});
+    }
     document.getElementById('encuesta-form').style.display = 'none';
     document.getElementById('encuesta-ok').style.display = 'block';
     ratings = {};
